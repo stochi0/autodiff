@@ -37,7 +37,7 @@ def train(mlp, x, y, epochs=100, learning_rate=0.01):
 
 
 if __name__ == "__main__":
-    # Create MLP: 3 inputs, 2 hidden neurons, 1 output
+    # MLP: 3 inputs, 2 hidden neurons, 1 output
     mlp = MLP(3, 2, 1)
     
     # Training data
