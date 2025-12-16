@@ -192,6 +192,28 @@ class Embedding(Module):
     def __repr__(self):
         return f"Embedding(num_embeddings={self.num_embeddings}, embedding_dim={self.embedding_dim})"
 
+class Dropout(Module):
+    """
+    Dropout layer for regularization.
+
+    During training, randomly zeroes elements with probability p.
+    During evaluation, performs identity operation.
+    """
+
+    def __init__(self, p: float = 0.5):
+        super().__init__()
+        self.p = p
+        self.training = True
+
+    def forward(self, x: Tensor) -> Tensor:
+        if self.training and self.p > 0:
+            mask = np.random.binomial(1, 1 - self.p, size=x.shape) / (1 - self.p)
+            return x * Tensor(mask, requires_grad=False)
+        return x
+
+    def __repr__(self):
+        return f"Dropout(p={self.p})"
+
 # ==================== Loss Functions as Modules ====================
 
 class MSELoss(Module):
