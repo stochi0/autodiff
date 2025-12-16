@@ -3,7 +3,7 @@ import os
 from typing import List
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src import Tensor, Module, Linear, ReLU, Tanh, Sigmoid, Sequential, Dropout, BatchNorm1d
+from src import Tensor, Module, Linear, ReLU, Tanh, Sigmoid, Sequential, Dropout, MSELoss, SGD
 import numpy as np
 
 print("=" * 50)
@@ -75,3 +75,48 @@ class MLP(Module):
 
     def __repr__(self):
         return repr(self.network)
+
+def regression_accuracy(y_pred: Tensor, y_true: Tensor, tolerance: float = 0.1):
+    """
+    Compute regression "accuracy" as the percentage of predictions within
+    a given tolerance of the true value.
+    """
+    pred_np = y_pred.data.flatten()
+    true_np = y_true.data.flatten()
+    # Within tolerance from true
+    correct = np.abs(pred_np - true_np) < tolerance
+    return correct.mean()
+
+model = MLP(input_size=5, hidden_sizes=[10, 10], output_size=1, activation="relu", dropout=0.1)
+
+print(f"\nModel:\n{model}")
+
+# Loss and optimizer
+criterion = MSELoss()
+optimizer = SGD(model.parameters(), lr=0.01)
+
+# Training loop
+epochs = 100
+for epoch in range(epochs):
+    # Forward pass
+    pred = model(X_tensor)
+    loss = criterion(pred, y_tensor)
+
+    # Compute "accuracy" (percentage within tolerance = 0.1)
+    accuracy = regression_accuracy(pred, y_tensor, tolerance=0.1)
+
+    # Backward pass
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    if (epoch + 1) % 10 == 0:
+        print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss.item():.6f}, Accuracy: {accuracy:.4f}")
+
+print("\nTraining complete!")
+
+# Test predictions
+with_preds = model(X_tensor)
+final_loss = criterion(with_preds, y_tensor)
+final_acc = regression_accuracy(with_preds, y_tensor, tolerance=0.1)
+print(f"Final loss: {final_loss.item():.6f}, Final Accuracy: {final_acc:.4f}")
