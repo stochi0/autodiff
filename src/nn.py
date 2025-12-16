@@ -124,3 +124,16 @@ class Tanh(Module):
 
     def __repr__(self):
         return "Tanh()"
+
+class Softmax(Module):
+    """Softmax activation function."""
+
+    def __init__(self, axis: int = -1):
+        super().__init__()
+        self.axis = axis
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x.softmax(axis=self.axis)
+
+    def __repr__(self):
+        return f"Softmax(axis={self.axis})"
