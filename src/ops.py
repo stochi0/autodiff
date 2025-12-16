@@ -526,3 +526,7 @@ def log(a: Tensor) -> Tensor:
 
     out._backward = _backward
     return out
+
+# Add .exp and .log to Tensor class
+Tensor.exp = lambda self: exp(self)
+Tensor.log = lambda self: log(self)
