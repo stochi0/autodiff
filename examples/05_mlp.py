@@ -1,9 +1,9 @@
 import sys
 import os
-
+from typing import List
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src import Tensor, Module, Linear, ReLU, Tanh, Sigmoid, Sequential, Dropout
+from src import Tensor, Module, Linear, ReLU, Tanh, Sigmoid, Sequential, Dropout, BatchNorm1d
 import numpy as np
 
 print("=" * 50)
