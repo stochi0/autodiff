@@ -7,7 +7,7 @@ parameter management and gradient computation.
 
 import numpy as np
 from typing import List
-from .tensor import Tensor, randn, zeros
+from .tensor import Tensor, randn, zeros, ones
 
 
 class Module:
@@ -213,6 +213,56 @@ class Dropout(Module):
 
     def __repr__(self):
         return f"Dropout(p={self.p})"
+
+class BatchNorm1d(Module):
+    """
+    Batch normalization for 1D inputs.
+
+    Normalizes input across the batch dimension.
+    """
+
+    def __init__(self, num_features: int, eps: float = 1e-5, momentum: float = 0.1):
+        super().__init__()
+        self.num_features = num_features
+        self.eps = eps
+        self.momentum = momentum
+        self.training = True
+
+        # Learnable parameters
+        self.gamma = ones(num_features, requires_grad=True)
+        self.beta = zeros(num_features, requires_grad=True)
+
+        # Running statistics (not trained)
+        self.running_mean = zeros(num_features)
+        self.running_var = ones(num_features)
+
+        self._parameters = [self.gamma, self.beta]
+
+    def forward(self, x: Tensor) -> Tensor:
+        if self.training:
+            # Compute batch statistics
+            batch_mean = x.mean(axis=0)
+            batch_var = ((x - batch_mean) ** 2).mean(axis=0)
+
+            # Update running statistics
+            self.running_mean.data = (
+                1 - self.momentum
+            ) * self.running_mean.data + self.momentum * batch_mean.data
+            self.running_var.data = (
+                1 - self.momentum
+            ) * self.running_var.data + self.momentum * batch_var.data
+
+            # Normalize
+            x_norm = (x - batch_mean) / ((batch_var + self.eps) ** 0.5)
+        else:
+            # Use running statistics
+            x_norm = (x - self.running_mean) / ((self.running_var + self.eps) ** 0.5)
+
+        # Scale and shift
+        return self.gamma * x_norm + self.beta
+
+    def __repr__(self):
+        return f"BatchNorm1d(num_features={self.num_features}, eps={self.eps}, momentum={self.momentum})"
 
 # ==================== Loss Functions as Modules ====================
 
