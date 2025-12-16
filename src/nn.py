@@ -191,3 +191,38 @@ class Embedding(Module):
 
     def __repr__(self):
         return f"Embedding(num_embeddings={self.num_embeddings}, embedding_dim={self.embedding_dim})"
+
+# ==================== Loss Functions as Modules ====================
+
+class MSELoss(Module):
+    """Mean squared error loss."""
+
+    def forward(self, pred: Tensor, target: Tensor) -> Tensor:
+        from . import ops
+
+        return ops.mse_loss(pred, target)
+
+    def __repr__(self):
+        return "MSELoss()"
+
+class CrossEntropyLoss(Module):
+    """Cross-entropy loss (combines softmax and negative log-likelihood)."""
+
+    def forward(self, pred: Tensor, target) -> Tensor:
+        from . import ops
+
+        return ops.cross_entropy(pred, target)
+
+    def __repr__(self):
+        return "CrossEntropyLoss()"
+
+class BCELoss(Module):
+    """Binary cross-entropy loss."""
+
+    def forward(self, pred: Tensor, target: Tensor) -> Tensor:
+        from . import ops
+
+        return ops.binary_cross_entropy(pred, target)
+
+    def __repr__(self):
+        return "BCELoss()"
