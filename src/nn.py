@@ -187,7 +187,31 @@ class Embedding(Module):
         Returns:
             Embeddings for the given indices
         """
-        return Tensor(self.weight.data[indices], requires_grad=True)
+        # Note: indices are not differentiable; gradients flow to `self.weight`.
+        idx = np.asarray(indices, dtype=np.int64)
+
+        out = Tensor(
+            self.weight.data[idx],
+            requires_grad=self.weight.requires_grad,
+            _children=(self.weight,),
+            _op="embedding",
+        )
+
+        def _backward():
+            if out.grad is None:
+                return
+            if not self.weight.requires_grad:
+                return
+
+            # Accumulate dL/dW for the rows that were selected.
+            # Handles repeated indices correctly via np.add.at.
+            grad_out = out.grad
+            idx_flat = idx.reshape(-1)
+            grad_flat = grad_out.reshape(-1, self.embedding_dim)
+            np.add.at(self.weight.grad, idx_flat, grad_flat)
+
+        out._backward = _backward
+        return out
 
     def __repr__(self):
         return f"Embedding(num_embeddings={self.num_embeddings}, embedding_dim={self.embedding_dim})"
