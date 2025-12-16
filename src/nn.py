@@ -137,3 +137,24 @@ class Softmax(Module):
 
     def __repr__(self):
         return f"Softmax(axis={self.axis})"
+
+
+class Sequential(Module):
+    """
+    Sequential container of modules.
+
+    Modules are applied in the order they are passed.
+    """
+
+    def __init__(self, *modules):
+        super().__init__()
+        self._modules = list(modules)
+
+    def forward(self, x: Tensor) -> Tensor:
+        for module in self._modules:
+            x = module(x)
+        return x
+
+    def __repr__(self):
+        module_str = ",\n  ".join(repr(m) for m in self._modules)
+        return f"Sequential(\n  {module_str}\n)"
