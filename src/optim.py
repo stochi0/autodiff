@@ -70,3 +70,61 @@ class SGD(Optimizer):
                 p.data -= self.lr * self.velocities[i]
             else:
                 p.data -= self.lr * grad
+
+
+class Adam(Optimizer):
+    """
+    Adam optimizer (Adaptive Moment Estimation).
+
+    Args:
+        parameters: List of parameters to optimize
+        lr: Learning rate
+        betas: Coefficients for computing running averages (default: (0.9, 0.999))
+        eps: Term for numerical stability (default: 1e-8)
+        weight_decay: L2 regularization factor (default: 0)
+    """
+
+    def __init__(
+        self,
+        parameters: List[Tensor],
+        lr: float = 0.001,
+        betas: tuple = (0.9, 0.999),
+        eps: float = 1e-8,
+        weight_decay: float = 0.0,
+    ):
+        super().__init__(parameters, lr)
+        self.beta1, self.beta2 = betas
+        self.eps = eps
+        self.weight_decay = weight_decay
+
+        # Initialize moment estimates
+        self.m = [np.zeros_like(p.data) for p in parameters]  # First moment
+        self.v = [np.zeros_like(p.data) for p in parameters]  # Second moment
+        self.t = 0  # Timestep
+
+    def step(self):
+        """Perform parameter update."""
+        self.t += 1
+
+        for i, p in enumerate(self.parameters):
+            if not p.requires_grad or p.grad is None:
+                continue
+
+            grad = p.grad
+
+            # Add weight decay
+            if self.weight_decay != 0:
+                grad = grad + self.weight_decay * p.data
+
+            # Update biased first moment estimate
+            self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * grad
+
+            # Update biased second raw moment estimate
+            self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * (grad**2)
+
+            # Compute bias-corrected moment estimates
+            m_hat = self.m[i] / (1 - self.beta1**self.t)
+            v_hat = self.v[i] / (1 - self.beta2**self.t)
+
+            # Update parameters
+            p.data -= self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
