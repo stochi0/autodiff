@@ -76,6 +76,46 @@ uv run python examples/04_custom_model.py
 uv run python examples/05_mlp.py
 uv run python examples/06_visualize_graph.py
 uv run python examples/07_decision_boundary.py
+uv run python examples/08_gradcheck.py
+uv run python examples/compare_with_pytorch.py
+```
+
+### PyTorch parity checks 
+To validate BeaconGrad against PyTorch, `examples/compare_with_pytorch.py` compares **forward outputs** and **backprop gradients** against PyTorch using `torch.float64`.
+
+If you don't have PyTorch installed in the uv environment:
+
+```bash
+uv pip install torch
+```
+
+Then run:
+
+```bash
+uv run python examples/compare_with_pytorch.py
+```
+
+#### Results (reported by `examples/compare_with_pytorch.py`)
+
+```
+============================================================
+BeaconGrad vs PyTorch parity checks (float64)
+============================================================
+
+Linear parity
+  forward max error: 0.000e+00
+  dx max error:      0.000e+00
+  dW max error:      2.220e-16
+  db max error:      0.000e+00
+
+MLP (2-layer) parity
+  forward max error: 0.000e+00
+  grad max error:    3.553e-15
+
+Summary  
+Model   Forward max error       Grad max error
+Linear  0.000e+00       2.220e-16
+MLP     0.000e+00       3.553e-15
 ```
 
 ### Computation Graph Visualization
