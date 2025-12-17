@@ -434,10 +434,8 @@ def mse_loss(pred: Tensor, target: Union[Tensor, np.ndarray]) -> Tensor:
 def binary_cross_entropy(pred: Tensor, target: Union[Tensor, np.ndarray]) -> Tensor:
     """Binary cross-entropy loss (expects pred in [0, 1])."""
     target = target if isinstance(target, Tensor) else Tensor(target)
-    # Numerical stability
-    pred_clipped = Tensor(
-        np.clip(pred.data, EPS, 1 - EPS), requires_grad=pred.requires_grad
-    )
+    # Numerical stability: clip, but keep gradient path to `pred`.
+    pred_clipped = clip(pred, EPS, 1 - EPS)
     return -(
         target * pred_clipped.log() + (1 - target) * (1 - pred_clipped).log()
     ).mean()
@@ -492,6 +490,24 @@ def cross_entropy(
 
 
 # ==================== Helper Functions ====================
+
+def clip(a: Tensor, min_value: float, max_value: float) -> Tensor:
+    """Element-wise clip with straight-through gradient inside bounds."""
+    clipped = np.clip(a.data, min_value, max_value)
+    out = Tensor(
+        clipped, requires_grad=a.requires_grad, _children=(a,), _op="clip"
+    )
+
+    def _backward():
+        if out.grad is None:
+            return
+        if a.requires_grad:
+            # Undefined at the exact boundaries; we choose 0 gradient there.
+            mask = (a.data > min_value) & (a.data < max_value)
+            a.grad = a.grad + mask * out.grad
+
+    out._backward = _backward
+    return out
 
 
 def exp(a: Tensor) -> Tensor:
