@@ -1,5 +1,5 @@
 """
-automatic differentiation library.
+BeaconGrad: a tiny NumPy autograd engine.
 
 Main components:
 - Tensor: Core tensor class with autograd
@@ -8,7 +8,7 @@ Main components:
 - optim: Optimization algorithms
 """
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 # Core tensor functionality
 from .tensor import (
