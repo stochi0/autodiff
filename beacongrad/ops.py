@@ -20,6 +20,7 @@ def add(a: Union[Tensor, float, int], b: Union[Tensor, float, int]) -> Tensor:
     out = Tensor(
         a.data + b.data,
         requires_grad=(a.requires_grad or b.requires_grad),
+        dtype=np.result_type(a.data, b.data),
         _children=(a, b),
         _op="add",
     )
@@ -44,6 +45,7 @@ def sub(a: Union[Tensor, float, int], b: Union[Tensor, float, int]) -> Tensor:
     out = Tensor(
         a.data - b.data,
         requires_grad=(a.requires_grad or b.requires_grad),
+        dtype=np.result_type(a.data, b.data),
         _children=(a, b),
         _op="sub",
     )
@@ -68,6 +70,7 @@ def mul(a: Union[Tensor, float, int], b: Union[Tensor, float, int]) -> Tensor:
     out = Tensor(
         a.data * b.data,
         requires_grad=(a.requires_grad or b.requires_grad),
+        dtype=np.result_type(a.data, b.data),
         _children=(a, b),
         _op="mul",
     )
@@ -92,6 +95,7 @@ def div(a: Union[Tensor, float, int], b: Union[Tensor, float, int]) -> Tensor:
     out = Tensor(
         a.data / b.data,
         requires_grad=(a.requires_grad or b.requires_grad),
+        dtype=np.result_type(a.data, b.data),
         _children=(a, b),
         _op="div",
     )
@@ -116,6 +120,7 @@ def pow(a: Union[Tensor, float, int], b: Union[Tensor, float, int]) -> Tensor:
     out = Tensor(
         a.data**b.data,
         requires_grad=(a.requires_grad or b.requires_grad),
+        dtype=np.result_type(a.data, b.data),
         _children=(a, b),
         _op="pow",
     )
@@ -140,7 +145,9 @@ def pow(a: Union[Tensor, float, int], b: Union[Tensor, float, int]) -> Tensor:
 
 def neg(a: Tensor) -> Tensor:
     """Unary negation."""
-    out = Tensor(-a.data, requires_grad=a.requires_grad, _children=(a,), _op="neg")
+    out = Tensor(
+        -a.data, requires_grad=a.requires_grad, dtype=a.dtype, _children=(a,), _op="neg"
+    )
 
     def _backward():
         if out.grad is None:
@@ -160,6 +167,7 @@ def matmul(a: Union[Tensor, np.ndarray], b: Union[Tensor, np.ndarray]) -> Tensor
     out = Tensor(
         np.matmul(a.data, b.data),
         requires_grad=(a.requires_grad or b.requires_grad),
+        dtype=np.result_type(a.data, b.data),
         _children=(a, b),
         _op="matmul",
     )
@@ -190,6 +198,7 @@ def sum(a: Tensor, axis=None, keepdims=False) -> Tensor:
     out = Tensor(
         a.data.sum(axis=axis, keepdims=keepdims),
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="sum",
     )
@@ -219,6 +228,7 @@ def mean(a: Tensor, axis=None, keepdims=False) -> Tensor:
     out = Tensor(
         a.data.mean(axis=axis, keepdims=keepdims),
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="mean",
     )
@@ -259,6 +269,7 @@ def reshape(a: Tensor, shape: Tuple[int, ...]) -> Tensor:
     out = Tensor(
         a.data.reshape(shape),
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="reshape",
     )
@@ -282,6 +293,7 @@ def transpose(a: Tensor, axes=None) -> Tensor:
     out = Tensor(
         np.transpose(a.data, axes),
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="transpose",
     )
@@ -305,7 +317,11 @@ def transpose(a: Tensor, axes=None) -> Tensor:
 def relu(a: Tensor) -> Tensor:
     """ReLU activation: max(0, x)."""
     out = Tensor(
-        np.maximum(0, a.data), requires_grad=a.requires_grad, _children=(a,), _op="relu"
+        np.maximum(0, a.data),
+        requires_grad=a.requires_grad,
+        dtype=a.dtype,
+        _children=(a,),
+        _op="relu",
     )
 
     def _backward():
@@ -323,6 +339,7 @@ def leaky_relu(a: Tensor, negative_slope: float = 0.01) -> Tensor:
     out = Tensor(
         np.where(a.data > 0, a.data, negative_slope * a.data),
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="leaky_relu",
     )
@@ -346,7 +363,9 @@ def sigmoid(a: Tensor) -> Tensor:
     max_log = float(np.log(finfo.max) - 2.0)  # margin for safety
     x_clip = np.clip(x, -max_log, max_log)
     sig = 1 / (1 + np.exp(-x_clip))
-    out = Tensor(sig, requires_grad=a.requires_grad, _children=(a,), _op="sigmoid")
+    out = Tensor(
+        sig, requires_grad=a.requires_grad, dtype=a.dtype, _children=(a,), _op="sigmoid"
+    )
 
     def _backward():
         if out.grad is None:
@@ -361,7 +380,9 @@ def sigmoid(a: Tensor) -> Tensor:
 def tanh(a: Tensor) -> Tensor:
     """Tanh activation."""
     tanh_val = np.tanh(a.data)
-    out = Tensor(tanh_val, requires_grad=a.requires_grad, _children=(a,), _op="tanh")
+    out = Tensor(
+        tanh_val, requires_grad=a.requires_grad, dtype=a.dtype, _children=(a,), _op="tanh"
+    )
 
     def _backward():
         if out.grad is None:
@@ -381,7 +402,11 @@ def softmax(a: Tensor, axis: int = -1) -> Tensor:
     softmax_val = exp_x / exp_x.sum(axis=axis, keepdims=True)
 
     out = Tensor(
-        softmax_val, requires_grad=a.requires_grad, _children=(a,), _op="softmax"
+        softmax_val,
+        requires_grad=a.requires_grad,
+        dtype=a.dtype,
+        _children=(a,),
+        _op="softmax",
     )
 
     def _backward():
@@ -409,6 +434,7 @@ def log_softmax(a: Tensor, axis: int = -1) -> Tensor:
     out = Tensor(
         log_softmax_val,
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="log_softmax",
     )
@@ -474,7 +500,11 @@ def cross_entropy(
         loss = -log_probs_selected.mean()
 
         out = Tensor(
-            loss, requires_grad=pred.requires_grad, _children=(log_probs,), _op="nll"
+            loss,
+            requires_grad=pred.requires_grad,
+            dtype=pred.dtype,
+            _children=(log_probs,),
+            _op="nll",
         )
 
         def _backward():
@@ -500,7 +530,7 @@ def clip(a: Tensor, min_value: float, max_value: float) -> Tensor:
     """Element-wise clip with straight-through gradient inside bounds."""
     clipped = np.clip(a.data, min_value, max_value)
     out = Tensor(
-        clipped, requires_grad=a.requires_grad, _children=(a,), _op="clip"
+        clipped, requires_grad=a.requires_grad, dtype=a.dtype, _children=(a,), _op="clip"
     )
 
     def _backward():
@@ -524,7 +554,9 @@ def exp(a: Tensor) -> Tensor:
     finfo = np.finfo(x.dtype)
     max_log = float(np.log(finfo.max) - 2.0)  # margin for safety
     exp_val = np.exp(np.clip(x, -max_log, max_log))
-    out = Tensor(exp_val, requires_grad=a.requires_grad, _children=(a,), _op="exp")
+    out = Tensor(
+        exp_val, requires_grad=a.requires_grad, dtype=a.dtype, _children=(a,), _op="exp"
+    )
 
     def _backward():
         if out.grad is None:
@@ -541,6 +573,7 @@ def log(a: Tensor) -> Tensor:
     out = Tensor(
         np.log(np.clip(a.data, EPS, None)),
         requires_grad=a.requires_grad,
+        dtype=a.dtype,
         _children=(a,),
         _op="log",
     )
