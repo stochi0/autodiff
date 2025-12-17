@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
-from src import Tensor, Module, Linear, ReLU, Dropout, Adam, MSELoss
+from beacongrad import Tensor, Module, Linear, ReLU, Dropout, Adam, MSELoss
 
 
 class CustomResidualBlock(Module):

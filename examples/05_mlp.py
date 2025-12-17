@@ -3,7 +3,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src import Tensor, MSELoss, SGD, MLP
+from beacongrad import Tensor, MSELoss, SGD, MLP
 import numpy as np
 
 print("=" * 50)

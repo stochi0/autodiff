@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
-from src import Tensor, MLP, CrossEntropyLoss, Adam
+from beacongrad import Tensor, MLP, CrossEntropyLoss, Adam
 
 print("=" * 50)
 print("Classification with MLP")

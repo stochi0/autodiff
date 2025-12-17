@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import numpy as np
-from src import Tensor, Linear, ReLU, Sequential, MSELoss, SGD
+from beacongrad import Tensor, Linear, ReLU, Sequential, MSELoss, SGD
 
 print("=" * 50)
 print("Neural Network Training")

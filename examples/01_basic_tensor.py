@@ -5,7 +5,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src import tensor
+from beacongrad import tensor
 
 print("=" * 50)
 print("Basic Tensor Operations")
