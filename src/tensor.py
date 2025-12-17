@@ -173,10 +173,14 @@ class Tensor:
 
     @property
     def T(self):
-        """Transpose (last two dimensions)."""
+        """Transpose by swapping the last two dimensions (like 2D matrix transpose)."""
         from . import ops
 
-        return ops.transpose(self)
+        if self.ndim < 2:
+            return self
+        axes = list(range(self.ndim))
+        axes[-1], axes[-2] = axes[-2], axes[-1]
+        return ops.transpose(self, axes=tuple(axes))
 
     # ==================== Activation Functions ====================
 

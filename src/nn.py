@@ -20,6 +20,7 @@ class Module:
     def __init__(self):
         self._parameters = []
         self._modules = []
+        self.training = True
 
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
