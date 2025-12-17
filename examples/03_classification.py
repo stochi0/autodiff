@@ -59,7 +59,7 @@ optimizer = Adam(model.parameters(), lr=0.01)
 
 # Training loop
 model.train()
-epochs = 50
+epochs = 100
 for epoch in range(epochs):
     # Forward pass
     logits = model(X_tensor)
