@@ -167,5 +167,6 @@ For multi-class classification:
 BeaconGrad prioritizes clarity and correctness over performance; operations are NumPy-based and not optimized for large-scale training.
 
 ### Notes
+- If you're new to autodiff, definitely check out the OG: Andrej Karpathy’s [micrograd](https://github.com/karpathy/micrograd). It'll make BeaconGrad even easier to follow.
 - `graphviz` and `matplotlib` are included as dependencies for visualization capabilities.
 - Mascot: [OpenMoji "Lighthouse of Alexandria" (E212)](https://openmoji.org/library/emoji-E212/) (CC BY-SA 4.0).
