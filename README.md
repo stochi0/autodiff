@@ -112,13 +112,24 @@ MLP (2-layer) parity
   forward max error: 0.000e+00
   grad max error:    3.553e-15
 
+Attention parity
+Attention (1h)      forward=1.476e-08  grad=8.761e-10
+Attention (2h)      forward=7.105e-15  grad=2.631e-14
+
+Summary
+Model   Forward max error       Grad max error
+Linear  0.000e+00       2.220e-16
+MLP     0.000e+00       3.553e-15
+Attention       1.476e-08       8.761e-10
+```
+
 #### Summary
 
 | Model  | Forward max error | Grad max error |
 |--------|------------------:|---------------:|
 | Linear | `0.000e+00`       | `2.220e-16`    |
 | MLP    | `0.000e+00`       | `3.553e-15`    |
-```
+| Attention | `1.476e-08`    | `8.761e-10`    |
 
 ### Computation Graph Visualization
 
