@@ -131,6 +131,16 @@ Attention       1.476e-08       8.761e-10
 | MLP    | `0.000e+00`       | `3.553e-15`    |
 | Attention | `1.476e-08`    | `8.761e-10`    |
 
+#### Parity plot
+
+![BeaconGrad vs PyTorch parity plot](assets/parity_comparison.png)
+
+To regenerate:
+
+```bash
+uv run python examples/10_parity_plot.py
+```
+
 ### Computation Graph Visualization
 
 BeaconGrad includes utilities to visualize computation graphs using Graphviz. This is useful for understanding how gradients flow through your computation:
